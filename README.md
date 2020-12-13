@@ -2,13 +2,13 @@
 Remote temperature and humidity meter controller with visualizer.
 
 # Requirements
-In order to make it easier to test and deploy the project the project builds are containerized with
-docker which you can install on any platform (Mac OS X, Windows, Linux) on the below link:
+The project builds are containerized and deployed on docker images to make the code
+more portable. To install docker, follow the instructions on link below:
 
-Install Docker:
 https://docs.docker.com/get-docker/
 
-In order to access prebuilt images, you will need a Docker Hub account
+**Extra**
+To download prebuilt images, you will need a Docker Hub account
 https://hub.docker.com/signup
 
 # Development
@@ -21,12 +21,12 @@ To update or add system dependencies, you will need to rebuild the image by exec
 `docker build -t akeskimo/docker-registry:latest`
 
 **Access**
-To access familiar bash prompt on the container, run
+To enter bash prompt on the container, run
 
 `docker run -it --entrypoint=/bin/bash akeskimo/docker-registry:latest`
 
 **Publish**
-If you want to publish the updated docker image you may push the docker image to remote repository
+If you need to update the remote docker image you may publish it with
 
 `docker push akeskimo/docker-registry:latest`
 
@@ -34,4 +34,4 @@ If you want to publish the updated docker image you may push the docker image to
 `git clone https://github.com/akeskimo/rethmeter.git`
 
 # Contributing
-Ask access to repository by asking a project admin by PM.
+To access repository you may ask a project admin by PM.
