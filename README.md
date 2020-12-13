@@ -18,7 +18,7 @@ https://hub.docker.com/signup
 **Build**
 To update or add system dependencies, you will need to rebuild the image by executing
 
-`docker build -t akeskimo/docker-registry:latest`
+`docker build -t akeskimo/docker-registry:latest docker/webserver`
 
 **Access**
 To enter bash prompt on the container, run
@@ -32,6 +32,10 @@ If you need to update the remote docker image you may publish it with
 
 # Get the Code
 `git clone https://github.com/akeskimo/rethmeter.git`
+
+# Run Websever
+
+`docker build -t akeskimo/docker-registry:latest docker/webserver && docker run -v $(pwd)/src/webserver:/webserver -p 8080:8080 akeskimo/docker-registry:latest`
 
 # Contributing
 To access repository you may ask a project admin by PM.

@@ -3,4 +3,4 @@
 cd webserver
 pip3 install -r requirements.txt
 
-pip3 list
+./webserver.py

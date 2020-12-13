@@ -8,5 +8,4 @@ RUN apt-get -y install \
 
 COPY entrypoint.sh /
 
-EXPOSE 8080
 ENTRYPOINT ["/entrypoint.sh"]
