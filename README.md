@@ -31,11 +31,16 @@ If you need to update the remote docker image you may publish it with
 `docker push akeskimo/docker-registry:latest`
 
 # Get the Code
+
 `git clone https://github.com/akeskimo/rethmeter.git`
 
 # Run Websever
 
-`docker build -t akeskimo/docker-registry:latest docker/webserver && docker run -v $(pwd)/src/webserver:/webserver -p 8080:8080 akeskimo/docker-registry:latest`
+`docker-compose -f docker/docker-compose.yml up`
+
+To access UI, open your browser with link:
+
+https://localhost
 
 # Contributing
 To access repository you may ask a project admin by PM.

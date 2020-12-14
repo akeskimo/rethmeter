@@ -6,6 +6,8 @@ RUN apt-get -y update
 RUN apt-get -y install \
     curl git python3 python3-pip
 
-COPY entrypoint.sh /
+ADD src/webserver/requirements.txt /
+RUN pip3 install -r requirements.txt
 
+ADD docker/webserver/entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
