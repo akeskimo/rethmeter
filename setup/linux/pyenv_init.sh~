@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Install pyenv python virtualenvironment.
+# Documentation: https://github.com/pyenv/pyenv-installer
+
+if [ -f ~/.pyenv ]; then
+  echo "pyenv is already installed."
+  exit 1
+fi
+
+curl https://pyenv.run | bash
+
+cat >> tmpfile << EOF
+export PATH=$PATH:~/.pyenv/bin
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+EOF
