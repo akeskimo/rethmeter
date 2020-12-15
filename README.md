@@ -36,7 +36,7 @@ If you need to update the remote docker image you may publish it with
 
 # Run Websever
 
-`docker-compose -f docker/docker-compose.yml up`
+`make run-webserver`
 
 To access UI, open your browser with link:
 
