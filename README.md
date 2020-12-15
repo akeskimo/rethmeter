@@ -44,7 +44,7 @@ If you need to update the remote docker image you may publish it with
 
 # Run Websever
 This will start the containerized webserver. If this is the first time that you are
-launching the webserver, see #first-time-setup section.
+launching the webserver, see [First Time Setup](#First-Time-Setup).
 
 `make run-webserver`
 
