@@ -18,17 +18,17 @@ https://hub.docker.com/signup
 **Build**
 To update or add system dependencies, you will need to rebuild the image by executing
 
-`docker build -t akeskimo/docker-registry:latest docker/webserver`
+`make docker-build-webserver`
 
-**Access**
-To enter bash prompt on the container, run
+**Debug**
+To enter bash prompt on the docker container, run
 
 `docker run -it --entrypoint=/bin/bash akeskimo/docker-registry:latest`
 
 **Publish**
 If you need to update the remote docker image you may publish it with
 
-`docker push akeskimo/docker-registry:latest`
+`make docker-push-webserver`
 
 # Get the Code
 
