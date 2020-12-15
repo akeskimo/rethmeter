@@ -7,6 +7,14 @@ more portable. To install docker, follow the instructions on link below:
 
 https://docs.docker.com/get-docker/
 
+# First Time Setup
+
+## SSL/TLS
+The webserver will require certificate in secrets folder for secure connections.
+If you do not have certificates provided by authority, you may create your own with
+
+`make create-ssl-certificates`
+
 **Extra**
 To download prebuilt images, you will need a Docker Hub account
 https://hub.docker.com/signup
@@ -35,6 +43,8 @@ If you need to update the remote docker image you may publish it with
 `git clone https://github.com/akeskimo/rethmeter.git`
 
 # Run Websever
+This will start the containerized webserver. If this is the first time that you are
+launching the webserver, see #first-time-setup section.
 
 `make run-webserver`
 

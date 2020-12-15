@@ -9,3 +9,6 @@ docker-push-webserver:
 
 run-webserver:
 	docker-compose -f $(CWD)/docker/docker-compose.yml up
+
+create-ssl-certificates:
+	$(CWD)/bin/create_ssl_cert.sh secrets
