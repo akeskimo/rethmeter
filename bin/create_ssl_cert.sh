@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
 
+set -o errexit
+set -o nounset
+set -o pipefail
+
 # Create self-signed certificate to enable application encryption.
 # Documentation: https://devcenter.heroku.com/articles/ssl-certificate-self
 
-# Change to working directory if given.
-if [ -d $1 ]; then
-  cd $1
+# Change to working directory.
+out="${1-}"
+if [[ -z "$out" ]]; then
+  echo "missing argument: output directory"
+  exit 1
 fi
+
+if [[ ! -d "$out" ]]; then
+  echo "invalid argument: directory does not exist:" $out
+  exit 1
+fi
+
+cd $out
 
 openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
 openssl rsa -passin pass:x -in server.pass.key -out server.key
