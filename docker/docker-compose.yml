@@ -12,7 +12,9 @@ services:
       - ../src/webserver/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ../secrets:/etc/secrets/ssl
   rethmeter:
-    build: ./webserver
+    build:
+      context: ./../
+      dockerfile: docker/webserver/Dockerfile
     image: akeskimo/docker-registry:latest
     container_name: webserver
     restart: unless-stopped
