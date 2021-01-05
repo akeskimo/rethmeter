@@ -23,3 +23,24 @@ services:
     volumes:
       - ../src/webserver:/srv/webserver/
       - ../log/:/var/log/rethmeter/
+  cube:
+    image: cubejs/cube:latest
+    ports:
+      - 4000:4000  # Cube.js API
+      - 3000:3000  # Playground web server (available in dev mode, only)
+    env_file: ./cubejs/.env
+    volumes:
+      - ./cubejs/schema:/cube/conf/schema
+  postgres:
+    shm_size: 256mb
+    image: postgres
+    restart: always
+    env_file: ./postgres/.env
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
