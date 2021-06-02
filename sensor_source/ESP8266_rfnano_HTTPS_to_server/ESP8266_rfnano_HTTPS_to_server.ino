@@ -18,7 +18,7 @@
 //Network setup------------------------------
 
 //network credentials for wifi
-const char* ssid = "";
+const char* ssid = ""; 
 const char* password = "";
 
 //Domain name with URL path or IP address with path (postgresql in port 5432)
