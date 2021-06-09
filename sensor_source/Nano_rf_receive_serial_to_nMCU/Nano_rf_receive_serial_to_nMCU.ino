@@ -31,7 +31,7 @@ String str_battery;
 unsigned long target_time = 0L; //for keeping internal DHT22 read loop constant in respect of internal clock
 
 //sensor id for connected sensor
-String id_int = "01";
+String id_int = "03";
 //sensor location
 String location_int = "01";
 // current temperature & humidity, updated in loop()
@@ -40,7 +40,7 @@ float t = 0.0;
 String str_int_humid;
 String str_int_temp;
 String str_int_out;
-String str_int_battery = "5.00";
+String str_int_battery = "100";
 
 void setup() {
 
@@ -61,8 +61,9 @@ void setup() {
 
 void loop() {
 
-  // Set buffer to size of expected message
-  uint8_t buf[19];
+  // Set buffer to size of expected message - message is in format 01,0122.0024.70100 (id","location humidity temperature battery%)
+
+  uint8_t buf[18];
   uint8_t buflen = sizeof(buf);
   // Check if received packet is correct size
   if (rf_driver.recv(buf, &buflen))

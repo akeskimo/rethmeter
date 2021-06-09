@@ -17,16 +17,16 @@
 
 //Network setup------------------------------
 
-//network credentials for wifi
-const char* ssid = ""; 
+
+const char* ssid = "";
 const char* password = "";
 
-//Domain name with URL path or IP address with path (postgresql in port 5432)
-const char* serverName = "https://192.168.0.100";
+//Domain name with URL path or IP address with path
+const char* serverName = "https://";
 const int httpsPort = 443;
 
 //SHA1 from site certificate through web browser - copy/paste it AS IT IS!!!!!
-const char* fingerprint = "FC:CC:DE:3C:60:A6:5C:50:10:F6:00:41:A8:BB:31:50:95:95:E7:72";
+const char* fingerprint = "";
 
 //Pin definitions on nodeMCU -----------------------------
 
@@ -58,6 +58,7 @@ String str_temp;
 String str_battery;
 String str_out;
 String formattedDate;
+unsigned int errorFlag = 0;
 
 unsigned long target_time = 0L; //for keeping https send loop for stored data constant in respect of internal clock
 
@@ -84,7 +85,7 @@ void setup()
   //SPIFFS setup------------------------------
   if (!SPIFFS.begin()) {
     Serial.println("An Error has occurred while mounting SPIFFS");
-    return;  //<----onko fiksua
+    return;  //
   }
 
   //  //SPIFFS format COMMENT THESE LINES has to be done ONLY ONCE!!!
@@ -117,7 +118,7 @@ void setup()
     count++;
 
     if (count >= 30)
-      WiFiRestart();
+      WiFiRestart(ssid, password);
   }
 
   // Print ESP8266 Local IP Address
@@ -129,93 +130,112 @@ void setup()
   //initialize the NTP client
   timeClient.begin();
 
-  //---------------------for development!!!!!!!!!!!!!!!!!!!!!!!!!!
-  if (SPIFFS.exists("/meas.txt")) {
-    //File meas = SPIFFS.open("/meas.txt", "r");
-    SPIFFS.remove("/meas.txt");
-  }
+} //setup()
 
-} //void setup()
-//------------------------------------
-void WiFiRestart() {
+//function for restarting WiFi------------------------------------
+void WiFiRestart(const char* ssid_restart, const char* password_restart) {
   Serial.println("Turning WiFi off...");
   WiFi.mode(WIFI_OFF);
   Serial.println("Sleepping for 10 seconds...");
   delay(10000);
   Serial.println("Trying to reconnect...");
   WiFi.mode(WIFI_STA);
-}
+  Serial.println("Connecting to ");
+  Serial.println(ssid);
 
+  //connect to WiFi
+  WiFi.begin(ssid_restart, password_restart);
+  Serial.println("Connecting to WiFi");
 
-void loop() {
-  unsigned int errorFlag = 0;
-  //Check if there is already stored data that needs to be transferred and delete if transferred successfully--------------------------
-  // Check if there is data to be transfer in SPIFFS memory (4MB max) and WiFi is connected
-  if (SPIFFS.exists("/meas.txt") && WiFi.status() == WL_CONNECTED && millis() - target_time >= PERIOD) {
-    target_time += PERIOD;  //get ready for the next iteration
+  // Print ESP8266 Local IP Address
+  Serial.println();
+  Serial.println("Wifi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+} //WifiRestart
+
+//Function for checking if there is stored data on flash and transfering it to server using TransferData function----------------------------
+unsigned long CheckStorage(const char* fprint,const char* sName,unsigned long t_time, const char* ssid_storage, const char* password_storage){
+	  int Flag = 1; 
+    t_time += PERIOD;  //get ready for the next iteration
     // this opens the file "meas.txt" in read-mode
+    Serial.println("Opening file");
     File meas = SPIFFS.open("/meas.txt", "r");
 
     while (meas.available()) {
       //read line by line from the file
       String stored_json = meas.readStringUntil('\n');    //read until end of line
 
-      //transfer data to server
-      // Create a WiFiClientSecure object
-      BearSSL::WiFiClientSecure client;
-      client.setFingerprint(fingerprint);
-      // Initialize the client library HTTPClient
-      HTTPClient http;
-      http.begin(client, serverName);
-      http.addHeader("Content-Type", "application/json");
-
-      Serial.print("HTTPS POST saved data...\n");
-      int httpCode = http.POST(stored_json);
-      if (httpCode > 0) {
-
-        String response = http.getString();
-        Serial.println(httpCode);
-        Serial.println(response);
-
-      }
-      else {
-        errorFlag = 1;
-        Serial.printf("Error occurred while sending HTTPS POST: %s\n", http.errorToString(httpCode).c_str());
-        http.end();
-        break;
-      }
+     Flag = TransferData(stored_json,fprint,sName, ssid_storage, password_storage);
 
     }//while data.available()
 
     Serial.println("Closing file");
     meas.close(); //close file after data transferred
 
-    if (errorFlag == 0) {
+    if (Flag == 0) {
       //delete local data buffer after succesful transfer
       Serial.println("Removing file");
       SPIFFS.remove("/meas.txt");
     }
+  return t_time;
+} //CheckStorageAndTransferData
 
-  }//if SPIFFS
+//Function for transfering json data to server------------------------------------------------------
+int TransferData(String json_out, const char* fprint2,const char* sName2, const char* ssid_transfer, const char* password_transfer){
+	
+	// wait for WiFi connection
+    if (WiFi.status() == WL_CONNECTED) {
+		
+		//transfer data to server
+		  // Create a WiFiClientSecure object
+		  BearSSL::WiFiClientSecure client;
+		  client.setFingerprint(fprint2);
+		  // Initialize the client library HTTPClient
+		  HTTPClient http;
+		  http.begin(client, sName2);
+		  http.addHeader("Content-Type", "application/json");
 
-  //Read data from serial port  -----------------------------------------
-  if (nano.available()) {
-    //Read data from serial
-    str_out = nano.readString();
-    Serial.println("in nano loop");
-    // Split string for debugging and development purposes
-    for (int i = 0; i < str_out.length(); i++) {
-      if (str_out.substring(i, i + 1) == ",") {
-        str_id = str_out.substring(0, i);
-        str_location = str_out.substring(i + 1, i + 3);
-        str_humid = str_out.substring(i + 3, i + 8);
-        str_temp = str_out.substring(i + 8, i + 13);
-        str_battery = str_out.substring(i + 13);
+		  Serial.print("HTTPS POST data...\n");
+		  int httpCode = http.POST(json_out);
+		  if (httpCode > 0) {
+
+			String response = http.getString();
+			Serial.println(httpCode);
+			Serial.println(response);
+			http.end();
+			return 0; //return no error
+		  }
+		  else {
+			
+			Serial.printf("Error occurred while sending HTTPS POST: %s\n", http.errorToString(httpCode).c_str());
+			http.end();
+			return 1; //return error
+		  }
+	}//if WiFi.status
+	
+	else {
+      WiFiRestart(ssid_transfer, password_transfer);
+	  return 1;
+    }
+} // TransferData
+
+//Function for generating JSON --------------------------------------------------------------
+String GenerateJSON(String str, String fDate){
+  String json;
+	// Split string for JSON building
+    for (int i = 0; i < str.length(); i++) {
+      if (str.substring(i, i + 1) == ",") {
+        str_id = str.substring(0, i);
+        str_location = str.substring(i + 1, i + 3);
+        str_humid = str.substring(i + 3, i + 8);
+        str_temp = str.substring(i + 8, i + 13);
+        str_battery = str.substring(i + 13);
         break;
       }
     }
-
-    // Print values to Serial Monitor
+	
+	// Print values to Serial Monitor
     Serial.print("ID: ");
     Serial.print(str_id);
     Serial.print("  - Location_ID: " );
@@ -227,96 +247,58 @@ void loop() {
     Serial.print("  - battery: ");
     Serial.println(str_battery);
 
-    //Get time from NTP server ------------------------------------------
-    while (!timeClient.update()) {
-      Serial.print("getting time");
-      timeClient.forceUpdate(); //sometimes the NTP Client retrieves 1970. To ensure that doesn’t happen we need to force the update.
-    }
-    // The formattedDate comes with the following format:
-    // 2018-05-28T16:00:13Z
-    formattedDate = timeClient.getFormattedDate(); //if this fails --> timecheck in serverside python code?
-
-    //Serial.println(formattedDate);
-
-    //Generate JSON ---------------------------------------------------
+	//Generate JSON
 
     // Generate serialized JSON and send it to the Serial port.
     DynamicJsonDocument doc(1024);
 
     doc["Sensor"] = str_id;
     doc["Location"] = str_location;
-    doc["Timestamp"] = formattedDate;
+    doc["Timestamp"] = fDate;
     doc["Temperature"] = str_temp.toFloat(); //temperature string to Float
     doc["Humidity"] = str_humid.toFloat(); //humidity string to Float
     doc["Battery"] = str_battery.toFloat(); //Battery voltage to Float
 
-    serializeJson(doc, Serial); //print output for debugging purposes
+    serializeJson(doc, json); //json to string format
+	
+	return json;
+	
+} //GenerateJSON
 
-
-    //HTTPS POST to send data to rethmeter webserver ------------------------------------------
-
-    // Start a new line
-    Serial.println();
-    Serial.println(fingerprint); //fingerprint
-
-    // wait for WiFi connection
-    if (WiFi.status() == WL_CONNECTED) {
-      // Create a WiFiClientSecure object
-      BearSSL::WiFiClientSecure client;
-
-      //Allow self signed certificates
-      //client.allowSelfSignedCerts();
-      // Set the fingerprint/CA cert to connect the server.
-      //client.setInsecure();
-      client.setFingerprint(fingerprint);
-
-      // Initialize the client library HTTPClient
-      HTTPClient http;
-      http.writeToStream(&Serial);
-      Serial.println("HTTPS begin");
-      http.begin(client, serverName);
-      http.addHeader("Content-Type", "application/json");
-
-      //Serialize document
-      String json;
-      serializeJson(doc, json);
-      Serial.print("HTTPS POST...\n");
-      int httpCode = http.POST(json);
-      if (httpCode > 0) {
-
-        String response = http.getString();
-        Serial.println(httpCode);
-        Serial.println(response);
-        return;
-
-      }
-      else {
-
-        Serial.printf("Error occurred while sending HTTPS POST: %s\n", http.errorToString(httpCode).c_str());
-
-        //Save data to SPIFFS memory to be sent when connection works
+//Function for saving JSON data to file---------------------------------------------------------
+void SaveToSPIFFS(String json_SPIFFS){
+	//Save data to SPIFFS memory to be sent when connection works
 
         if (SPIFFS.exists("/meas.txt")) { // in append mode to append to existing data file
-          File meas = SPIFFS.open("/meas.txt", "FILE_APPEND");
+          File meas = SPIFFS.open("/meas.txt", "a");
           if (meas.size() < 3000000) { //maximum file size set to 3MB
-            meas.println(json); //write json data to file
-            Serial.print("Data saved to measurement file meas.txt - File size: ");
-            Serial.print(meas.size());
-            Serial.println(" bytes");
-            meas.close();
+            int bytesWritten = meas.println(json_SPIFFS); //write json data to file
+            if (bytesWritten > 0) {
+      				Serial.print("Data saved to measurement file meas.txt - bytes written: ");
+      				Serial.print(bytesWritten);
+      				Serial.print(" bytes ");
+      				Serial.print("Total size: ");
+      				Serial.print(meas.size());
+      				Serial.println(" bytes ");
+      			}
+			      else {
+				      Serial.print("Error in writing data");
+			      }
+			    meas.close();
           }
           else {
             Serial.println("Maximum allowed measurement filesize reached!!!");
             meas.close();
           }
-        }
+        }//if SPIFFS.exists
+		
         else {  //in write mode for creating file
           File meas = SPIFFS.open("/meas.txt", "w");
           if (!meas) {
             Serial.println("file creation failed");
           }
           if (meas.size() < 3000000) { //maximum file size set to 3MB
-            meas.println(json); //write json data to file
+            meas.println(json_SPIFFS); //write json data to file
             Serial.print("Data saved to measurement file meas.txt - File size: ");
             Serial.print(meas.size());
             Serial.println(" bytes");
@@ -326,15 +308,41 @@ void loop() {
             Serial.println("Maximum allowed measurement filesize reached!!!");
             meas.close();
           }
-        }
-      }
+        } //else
+      } //SaveToSPIFFS
 
-      http.end();
-      return; //Back to monitoring serial for more data
-
-    }
-    else {
-      WiFiRestart();
-    }
-  } // if (nano.available())
-}// void loop()
+//Main program loop------------------------------------------------------------
+void loop() {
+	
+  // Check if there is data to be transfer in SPIFFS memory (4MB max) and WiFi is connected
+  if (SPIFFS.exists("/meas.txt") && WiFi.status() == WL_CONNECTED && millis() - target_time >= PERIOD) {
+		target_time = CheckStorage(fingerprint,serverName, target_time, ssid, password);  //Check if there is already stored data that needs to be transferred and delete if transferred successfully
+	}//if SPIFFS
+	
+	//Read data from serial connection to Nano
+	if (nano.available()) {
+		//Read data from serial
+		str_out = nano.readString();
+		Serial.println("in nano loop");
+		
+		//Get time from NTP server ------------------------------------------
+   timeClient.update();
+//		while (!timeClient.update()) {
+//		  Serial.println("Updating time");
+//		  timeClient.forceUpdate(); //sometimes the NTP Client retrieves 1970. To ensure that doesn’t happen we need to force the update.
+//		}
+		// The formattedDate comes with the following format:
+		// 2018-05-28T16:00:13Z
+		formattedDate = timeClient.getFormattedDate(); //if this fails --> timecheck in serverside python code?
+		
+		//Generate JSON document from received data
+		String json_i = GenerateJSON(str_out, formattedDate);
+		
+		//Send JSON document to server
+		 int errorFlag = TransferData(json_i,fingerprint,serverName, ssid, password);
+		
+		if (errorFlag == 1) {
+			SaveToSPIFFS(json_i);
+		}
+	} //if nano.available
+}// loop()
