@@ -2,37 +2,17 @@
 
 # Install Python Virtual Environment
 
-For local development, you are recommended to use virtual python environment, see `pyenv` or `virtualenv`.
+For local development, you are recommended to use virtual python environment, see `Pipenv`.
 
-## Pyenv
-Pyenv allows managing multiple python versions which gives developer flexibility to choose between different
-python versions without needing to upgrade the system python.
+## Pipenv
+Pipenv keeps static lock file that tracks all packages and including their dependencies keeping
+consistent dependency graph across installed packages.
 
-### Install
-`setup/linux/pyenv_init.sh`
+`pipenv install -r requirements.txt`
 
-### Usage
-Install python version 3.5.3, activate it and install pip packages on it.
+To bind the version in updated requirements.txt, you will need to freeze the versions:
 
-```bash
-pyenv install 3.5.3
-pyenv virtualenv 3.5.3 rethmeter-webserver
-pyenv virtualenv activate rethmeter-webserver
-pip install -r requirements.txt
-```
-
-## Virtualenv
-If you prefer to use your system-wide python or are old-school, you can use virtualenv, for example.
-
-### Install
-`apt-get install virtualenv`
-
-### Usage
-```bash
-virtualenv --python python3 env
-source env/bin/activate
-pip install -r requirements.txt
-```
+`pipenv run pip freeze > requirements.txt`
 
 # Run Webserver
 To launch webserver on the local environment, run
