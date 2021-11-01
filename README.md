@@ -26,7 +26,7 @@ https://hub.docker.com/signup
 **Build**
 To update or add system dependencies, you will need to rebuild the image by executing
 
-`make docker-build-webserver`
+`make -C docker build`
 
 **Debug**
 To enter bash prompt on the docker container, run
@@ -36,7 +36,7 @@ To enter bash prompt on the docker container, run
 **Publish**
 If you need to update the remote docker image you may publish it with
 
-`make docker-push-webserver`
+`make -C docker push`
 
 # Get the Code
 
