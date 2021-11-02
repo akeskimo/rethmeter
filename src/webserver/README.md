@@ -17,8 +17,8 @@ To bind the version in updated requirements.txt, you will need to freeze the ver
 # Run Webserver
 To launch webserver on the local environment, run
 
-`./webserver`
+`python3 manage.py django/rethmeter/manage.py`
 
 To access UI, open your browser with link:
 
-http://localhost:3838
+http://localhost
