@@ -8,14 +8,15 @@ services:
     image: akeskimo/docker-registry:latest
     restart: unless-stopped
     ports:
-      - 8000:8000
+      - 8000:80
     volumes:
       - ../src/webserver:/app/
       - ../log/:/var/log/rethmeter/
   cube:
     image: cubejs/cube:latest
+    expose:
+      - 4000  # Cube.js API
     ports:
-      - 4000:4000  # Cube.js API
       - 3000:3000  # Playground web server (available in dev mode, only)
     env_file: ./cubejs/.env
     volumes:
@@ -25,8 +26,8 @@ services:
     image: postgres
     restart: always
     env_file: ./postgres/.env
-    ports:
-      - 5432:5432
+    expose:
+      - 5432
     volumes:
       - ./postgres/data:/var/lib/postgresql/data
   adminer:
