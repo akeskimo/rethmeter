@@ -1,12 +1,11 @@
 version: '3'
 
 services:
-  rethmeter:
+  webserver:
     build:
       context: ./../
       dockerfile: docker/webserver/Dockerfile
     image: akeskimo/docker-registry:latest
-    container_name: webserver
     restart: unless-stopped
     expose:
       - 3838
