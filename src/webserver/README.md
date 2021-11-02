@@ -17,7 +17,7 @@ In order to add new packages in the installed requirements file, you will need t
 # Run Webserver
 To launch webserver on the local environment, run
 
-`python3 django/rethmeter/manage.py runserver localhost:8000`
+`python3 django/rethmeter/manage.py runserver`
 
 To access UI, open your browser with link:
 
