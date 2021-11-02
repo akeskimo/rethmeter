@@ -7,9 +7,9 @@ sync:
 	pipenv sync
 
 run-webserver:
-	docker-compose -f $(CWD)/docker/docker-compose.yml up
+	docker-compose -f docker/docker-compose.yml up
 
 create-ssl-certificates:
-	$(CWD)/bin/create_ssl_cert.sh secrets
+	bin/create_ssl_cert.sh secrets
 
 .PHONY: install sync create-ssl-certificates
