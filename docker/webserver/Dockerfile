@@ -1,7 +1,5 @@
 FROM debian:stretch
 
-ARG WEBSERVER_PORT=3838
-
 # Install system level dependencies
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get -y update
