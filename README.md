@@ -50,7 +50,7 @@ launching the webserver, see [First Time Setup](#First-Time-Setup).
 
 To access UI, open your browser with link:
 
-https://localhost
+http://localhost
 
 # Contributing
 To access repository you may ask a project admin by PM.
