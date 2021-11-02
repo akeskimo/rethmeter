@@ -2,7 +2,7 @@
 
 # Install Python Virtual Environment
 
-For local development, you are recommended to use virtual python environment, see `Pipenv`.
+For local development, you are recommended to use virtual python environment. Using [Pipenv](#Pipenv) is recommended.
 
 ## Pipenv
 Pipenv keeps static lock file that tracks all packages and including their dependencies keeping
@@ -10,15 +10,15 @@ consistent dependency graph across installed packages.
 
 `pipenv install -r requirements.txt`
 
-To bind the version in updated requirements.txt, you will need to freeze the versions:
+In order to add new packages in the installed requirements file, you will need to update requirements:
 
-`pipenv run pip freeze > requirements.txt`
+`make update-requirements`
 
 # Run Webserver
 To launch webserver on the local environment, run
 
-`python3 manage.py django/rethmeter/manage.py`
+`python3 django/rethmeter/manage.py runserver localhost:8000`
 
 To access UI, open your browser with link:
 
-http://localhost
+http://localhost:8000
