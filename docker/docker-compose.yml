@@ -10,7 +10,7 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - ../src/webserver:/srv/webserver/
+      - ../src/webserver:/app/
       - ../log/:/var/log/rethmeter/
   cube:
     image: cubejs/cube:latest
