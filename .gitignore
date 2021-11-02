@@ -5,3 +5,4 @@ srv/webserver/data
 /docker/postgres/data
 /docker/cubejs/schema
 /.tool-versions
+__pycache__
