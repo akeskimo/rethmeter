@@ -19,7 +19,7 @@ class Device(models.Model):
 class Sensor(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text="Sensor unique id.")
     name = models.CharField(max_length=32, help_text="Sensor name.")
-    parent = models.OneToOneField(Device, on_delete=models.PROTECT, help_text="Parent device of the sensor.")
+    parent = models.ForeignKey(Device, on_delete=models.PROTECT, help_text="Parent device of the sensor.")
 
     def __str__(self) -> str:
         return f"Sensor(name={self.name}, parent={self.parent})"
@@ -32,7 +32,7 @@ class Measurement(models.Model):
     sensor = models.ForeignKey(Sensor, on_delete=models.PROTECT, help_text="Measurement source.")
 
     class Meta:
-        ordering = ['date']
+        ordering = ['sensor__id', 'date']
 
     def __str__(self) -> str:
-        return f"Measurement(date={self.date}, value={self.value}, unit={self.unit})"
+        return f"Measurement(date={self.date}, value={self.value}, unit={self.unit}, sensor={self.sensor.id})"
