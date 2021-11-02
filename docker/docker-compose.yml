@@ -2,6 +2,7 @@ version: '3'
 
 services:
   webserver:
+    container_name: webserver
     build:
       context: ./../
       dockerfile: docker/webserver/Dockerfile
