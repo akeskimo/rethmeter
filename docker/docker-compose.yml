@@ -7,8 +7,8 @@ services:
       dockerfile: docker/webserver/Dockerfile
     image: akeskimo/docker-registry:latest
     restart: unless-stopped
-    expose:
-      - 3838
+    ports:
+      - 8000:8000
     volumes:
       - ../src/webserver:/srv/webserver/
       - ../log/:/var/log/rethmeter/

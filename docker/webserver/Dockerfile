@@ -12,8 +12,4 @@ ADD src/webserver /srv/webserver
 WORKDIR /srv/webserver
 RUN pip3 install -r requirements.txt
 
-ENV WEBSERVER_PORT=${WEBSERVER_PORT}
-EXPOSE ${WEBSERVER_PORT}
-
-ADD docker/webserver/entrypoint.sh /
-ENTRYPOINT ["/entrypoint.sh"]
+CMD [ "python3", "django/rethmeter/manage.py", "runserver", "localhost:8000" ]
