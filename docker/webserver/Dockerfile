@@ -1,10 +1,9 @@
-FROM debian:stretch
+FROM python:3.9.7-bullseye
 
 # Install system level dependencies
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get -y update
 RUN apt-get -y install \
-    curl git python3 python3-pip
+    curl git
 
 # Install python dependencies.
 COPY src/webserver/requirements.txt /app/requirements.txt
