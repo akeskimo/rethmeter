@@ -11,7 +11,7 @@ services:
     ports:
       - 80:8000
     volumes:
-      - ../src/webserver:/app/
+      - ../src/webserver:/app
     depends_on:
       - "postgres"
   cube:
