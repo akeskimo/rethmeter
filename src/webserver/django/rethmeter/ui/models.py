@@ -1,9 +1,5 @@
 from django.db import models
 import uuid
-from django.contrib.postgres.fields import ArrayField
-
-
-MAX_MEASUREMENTS_ARRAY_SIZE = 365 * 24 * 60 * 60
 
 
 class Device(models.Model):
