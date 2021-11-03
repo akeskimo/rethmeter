@@ -1,14 +1,18 @@
-FROM python:3.9.7-bullseye
+FROM python:3.8-slim as base
 
-# Install system level dependencies
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get -y install \
-    curl git
+FROM base as builder
 
-# Install python dependencies.
-COPY src/webserver/requirements.txt /app/requirements.txt
-WORKDIR /app
-RUN pip3 install -r requirements.txt
-RUN pip3 install ipython
+RUN mkdir /install
+WORKDIR /install
+
+ADD src/webserver/requirements.txt requirements.txt
+RUN pip3 install --prefix=/install configparser
+RUN pip3 install --prefix=/install -r requirements.txt
+
+RUN pip3 install --prefix=/install ipython
+
+FROM base
+
+COPY --from=builder /install /usr/local
 
 CMD [ "python3", "django/rethmeter/manage.py", "runserver", "0.0.0.0:8000" ]
