@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<table>
+    <caption>Devices</caption>
+
+    <thead>
+        <tr>
+            <th>NAME</th>
+            <th>ID</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for d in devices %}
+        <tr>
+            <td>{{d.name}}</td>
+            <td>{{d.uuid}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
