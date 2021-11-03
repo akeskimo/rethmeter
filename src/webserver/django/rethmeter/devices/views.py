@@ -1,5 +1,11 @@
 from django.shortcuts import render
 from .models import Device, Sensor, Measurement
+from django.views import generic
+
+
+class SensorListView(generic.ListView):
+    model = Sensor
+    template_name = 'sensors.html'
 
 
 def index(request):
