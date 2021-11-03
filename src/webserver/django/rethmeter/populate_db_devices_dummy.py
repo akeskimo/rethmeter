@@ -14,9 +14,6 @@ for _ in range(45):
     m = Measurement(value=value, unit="C", sensor=sensor11)
     m.save()
 
-sensor12 = Sensor(name="DummySensor1", parent=device1)
-sensor12.save()
-
 
 device2 = Device(name="DummyDevice2", id="0bc25db7-c44e-4e94-9305-b377bd5f6e72", description="Dummy device for displaying fake data.")
 device2.save()
@@ -29,7 +26,7 @@ for _ in range(45):
     m = Measurement(value=value, unit="C", sensor=sensor21)
     m.save()
 
-sensor22 = Sensor(name="DummySensor1", parent=device1)
+sensor22 = Sensor(name="DummySensor2", parent=device1)
 sensor22.save()
 
 for _ in range(45):
