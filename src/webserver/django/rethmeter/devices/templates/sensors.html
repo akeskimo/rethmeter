@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Sensors</h1>
+  {% if sensor_list %}
+  <ul>
+    {% for sensor in sensor_list %}
+      <li>
+        <a href="{{ sensor.get_absolute_url }}">{{ sensor.name }}</a> ({{sensor.id}})
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>No sensors found from database.</p>
+  {% endif %}
+{% endblock %}
