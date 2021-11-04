@@ -46,6 +46,9 @@ func parseArgs() (*Arguments, error) {
 	if err != nil {
 		return nil, err
 	}
+	if args.brokerURL == nil {
+		return nil, fmt.Errorf("Parsed url is empty")
+	}
 
 	return &args, nil
 }
