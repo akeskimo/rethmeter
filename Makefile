@@ -1,21 +1,56 @@
-CWD=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-MKDIR=mkdir -p
-DB_DIR=docker/postgres/data/
+CWD := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+MKDIR := mkdir -p
+DB_DIR := docker/postgres/data/
 
-first:
+BUILD_DIR := bin
+PATH := $(BUILD_DIR):$(PATH)
 
+SOURCES := $(wildcard src/broker/*.go)
+GOARCH := $(shell go env GOARCH)
+GOOS := $(shell go env GOOS)
+GO_TARGET_DIR := $(BUILD_DIR)/$(GOOS)_$(GOARCH)
+BROKER_EXEC := $(GO_TARGET_DIR)/broker
+
+.PHONY: all
+all: $(BROKER_EXEC)
+all: directories
+
+$(BROKER_EXEC): $(SOURCES)
+	go build -o $@ $?
+
+.PHONY: format
+format:
+	go fmt
+
+.PHONY: test
+test: golint vet
+
+.PHONY: golint
+golint: $(SOURCES)
+	golint $^
+
+.PHONY: vet
+vet: $(SOURCES)
+	go vet $^
+
+.PHONY: clean
+clean:
+	$(RM) $(BROKER_EXEC)
+
+.PHONY: directories
 directories: ${DB_DIR}
 
 ${DB_DIR}:
 	${MKDIR} ${DB_DIR}
 
+.PHONY: docker
 docker:
 	$(MAKE) -C docker
 
+.PHONY: run-webserver
 run-webserver: docker directories
 	docker-compose -f docker/docker-compose.yml up
 
+.PHONY: create-ssl-certificates
 create-ssl-certificates:
-	bin/create_ssl_cert.sh secrets
-
-.PHONY: create-ssl-certificates docker first directories
+	scripts/create_ssl_cert.sh secrets

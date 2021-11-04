@@ -7,3 +7,4 @@ srv/webserver/data
 /.tool-versions
 __pycache__
 /docker/postgres/data/
+/bin/
