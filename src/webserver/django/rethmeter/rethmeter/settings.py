@@ -132,20 +132,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Configure logging
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     '': {
-#         'handlers': ['console'],
-#         'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
-#     },
-# }
-# logging.config.dictConfig(LOGGING)
+# https://docs.djangoproject.com/en/3.2/topics/logging/
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
