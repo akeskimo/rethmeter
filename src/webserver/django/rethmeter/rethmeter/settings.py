@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import logging.config
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -127,3 +129,52 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Configure logging
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     '': {
+#         'handlers': ['console'],
+#         'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
+#     },
+# }
+# logging.config.dictConfig(LOGGING)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} {levelname}:{name}:{module}({filename}:{lineno}): {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname}:{module}: {message}',
+            'style': '{',
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        '': {
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'formatter': 'verbose',
+            'handlers': ['console'],
+            'propagate': False
+        },
+        'django': {
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'WARNING'),
+        },
+    }
+}
+logging.config.dictConfig(LOGGING)

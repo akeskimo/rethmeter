@@ -53,21 +53,29 @@ func parseArgs() (*Arguments, error) {
 	return &args, nil
 }
 
+type Measurement struct {
+	SensorID string `json:"sensor-id"`
+	Unit     string `json:"unit"`
+	Value    int    `json:"value"`
+}
+
 // sendToClient forwards data to specified URL in request body.
 func sendToClient(client *http.Client, url *url.URL, readerSize int, data []byte) error {
 	var (
-		err      error
-		response *http.Response
-		values   map[string]string
-		payload  []byte
+		err         error
+		response    *http.Response
+		measurement *Measurement
+		payload     []byte
 	)
 
 	// Replace dummy data with actual parsed data.
-	values = map[string]string{
-		"data": string(data),
+	measurement = &Measurement{
+		SensorID: "1",
+		Unit:     "C",
+		Value:    111,
 	}
-	payload = make([]byte, readerSize)
-	payload, err = json.Marshal(values)
+
+	payload, err = json.Marshal(measurement)
 	if err != nil {
 		return fmt.Errorf("Marshaling json failed: %s\n", err)
 	}

@@ -1,0 +1,26 @@
+{
+    "$id": "devices.schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Rethmeter Measurement Schema.",
+    "type": "object",
+    "required": ["sensor-id", "unit", "value"],
+    "additionalProperties": false,
+    "properties": {
+        "sensor-id": {
+            "type": "string",
+            "description": "Sensor device identifier."
+        },
+        "type": {
+            "type": "number",
+            "description": "Measurement type."
+        },
+        "unit": {
+            "type": "string",
+            "description": "Measurement unit."
+        },
+        "value": {
+            "type": "number",
+            "description": "Measurement value."
+        }
+    }
+}
