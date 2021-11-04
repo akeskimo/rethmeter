@@ -14,6 +14,16 @@ services:
       - ../src/webserver:/app
     depends_on:
       - "postgres"
+  broker:
+    container_name: broker
+    build:
+      dockerfile: docker/broker/Dockerfile
+      context: ./../
+    restart: always
+    ports:
+      - 4321:4321
+    depends_on:
+      - "webserver"
   cube:
     image: cubejs/cube:latest
     ports:
