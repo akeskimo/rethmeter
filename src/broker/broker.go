@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -59,8 +59,20 @@ type Measurement struct {
 	Value    int    `json:"value"`
 }
 
+// Message expresses parsed binary buffer in structure object.
+type Message struct {
+	// Sensor ID unique identifier.
+	SensorID [36]byte
+
+	// Measurement unit.
+	Unit [4]byte
+
+	// Measurement value.
+	Value int32
+}
+
 // sendToClient forwards data to specified URL in request body.
-func sendToClient(client *http.Client, url *url.URL, readerSize int, data []byte) error {
+func sendToClient(client *http.Client, url *url.URL, readerSize int, message *Message) error {
 	var (
 		err         error
 		response    *http.Response
@@ -68,11 +80,10 @@ func sendToClient(client *http.Client, url *url.URL, readerSize int, data []byte
 		payload     []byte
 	)
 
-	// Replace dummy data with actual parsed data.
 	measurement = &Measurement{
-		SensorID: "1",
-		Unit:     "C",
-		Value:    111,
+		SensorID: string(message.SensorID[:]),
+		Unit:     string(message.Unit[:]),
+		Value:    int(message.Value),
 	}
 
 	payload, err = json.Marshal(measurement)
@@ -87,7 +98,11 @@ func sendToClient(client *http.Client, url *url.URL, readerSize int, data []byte
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("POST to URL %s failed with status: %s\n", url, response.Status)
+		b, err := io.ReadAll(response.Body)
+		if err != nil {
+			return fmt.Errorf("Error decoding response status from POST to URL %s, status: %s, error: %s\n", url, response.Status, err)
+		}
+		return fmt.Errorf("POST to URL %s failed with status: %s, message: %s\n", url, response.Status, b)
 	}
 
 	fmt.Printf("POST success: %s\n", url.String())
@@ -100,42 +115,31 @@ func sendToClient(client *http.Client, url *url.URL, readerSize int, data []byte
 func handleConnection(conn net.Conn, readerSize int, url *url.URL) {
 	defer conn.Close()
 
-	fmt.Printf("%s connected.\n", conn.RemoteAddr())
-
 	var (
-		bufferedReader *bufio.Reader
-		buf            []byte
-		nbytes         int
-		err            error
-		client         *http.Client
+		err     error
+		client  *http.Client
+		message *Message
 	)
 
-	buf = make([]byte, readerSize)
+	fmt.Printf("%s connected.\n", conn.RemoteAddr())
 
 	client = &http.Client{}
 
-	bufferedReader = bufio.NewReaderSize(conn, readerSize)
+	message = &Message{}
 	for {
-		if nbytes, err = bufferedReader.Read(buf); err != nil {
+		err = binary.Read(conn, binary.LittleEndian, message)
+		if err != nil {
 			if err == io.EOF {
 				break
 			}
-
-			if err != nil {
-				fmt.Printf("Reading data failed: %s", err)
-				return
-			}
-		}
-
-		if nbytes == 0 {
-			fmt.Printf("No data read. Did the client close connection?\n")
-			break
+			fmt.Printf("Unpack failed: %s\n", err)
+			return
 		}
 	}
 
-	err = sendToClient(client, url, readerSize, buf)
+	err = sendToClient(client, url, readerSize, message)
 	if err != nil {
-		fmt.Printf("Forwarding message failed: %s\n", err)
+		fmt.Printf("Sending message to client failed: %s\n", err)
 	}
 }
 

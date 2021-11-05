@@ -60,7 +60,6 @@ class JSONResponse(JsonResponse):
 @csrf_exempt
 def api_sensor_data(request: HttpRequest) -> JSONResponse:
     try:
-        logger.info("Request body: %s", request.body)
         data = json.loads(request.body.decode())
     except JSONDecodeError as e:
         return JSONResponse(message="Decoding of JSON failed: %s" % e, status=HttpResponseBadRequest.status_code)
@@ -81,7 +80,5 @@ def api_sensor_data(request: HttpRequest) -> JSONResponse:
     except Exception as e:
         logger.exception("Unhandled error while validating request body:")
         return JSONResponse(message="Unexpected error while validating request body. Check server logs.", status=HttpResponseBadRequest.status_code)
-
-    logger.info("Received data: %s", data)
 
     return JSONResponse(message="SUCCESS", status=HttpResponse.status_code)
