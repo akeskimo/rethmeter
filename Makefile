@@ -43,13 +43,12 @@ directories: ${DB_DIR}
 ${DB_DIR}:
 	${MKDIR} ${DB_DIR}
 
-.PHONY: docker
-docker:
-	$(MAKE) -C docker
-
 .PHONY: run-webserver
-run-webserver: docker directories
-	docker-compose -f docker/docker-compose.yml up
+run-webserver: directories $(BROKER_EXEC)
+	# Work-around: Docker creates files with wrong permissions. For proper solution, see:
+	# https://stackoverflow.com/questions/29245216/write-in-shared-volumes-docker
+	sudo chown $(USER):$(USER) -R ${DB_DIR}
+	docker-compose -f docker/docker-compose.yml up --build
 
 .PHONY: create-ssl-certificates
 create-ssl-certificates:
