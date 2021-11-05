@@ -15,7 +15,7 @@ import (
 
 // Arguments parsed from the command line.
 type Arguments struct {
-	// Server address that the broker will be listening on.
+	// Server address to bind to.
 	serverHost string
 
 	// Server port to accept incoming connections.
@@ -96,7 +96,7 @@ func sendToClient(client *http.Client, url *url.URL, readerSize int, data []byte
 }
 
 // handleConnection reads incoming data from connection and executes
-// callback with the received data.
+// callback with received data.
 func handleConnection(conn net.Conn, readerSize int, url *url.URL) {
 	defer conn.Close()
 
