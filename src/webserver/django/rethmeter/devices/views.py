@@ -1,15 +1,17 @@
-from json.decoder import JSONDecodeError
-from django.http.response import HttpResponse, HttpResponseNotAllowed, HttpResponseServerError
-from django.shortcuts import render
-from jsonschema.exceptions import ValidationError
-from .models import Device, Sensor, Measurement
-from django.views import generic
-from django.http import HttpResponseBadRequest
 import json
 import logging
-from jsonschema import validate, Draft7Validator
 import os
+from json.decoder import JSONDecodeError
+from django.http.request import HttpRequest
+from jsonschema.exceptions import ValidationError
+from jsonschema import validate, Draft7Validator
+from django.http.response import HttpResponse, HttpResponseNotAllowed, HttpResponseServerError, JsonResponse
+from django.http import HttpResponseBadRequest
+from django.shortcuts import render
+from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
+
+from .models import Device, Sensor, Measurement
 
 
 logger = logging.getLogger(__name__)
@@ -49,27 +51,37 @@ def index(request):
     return render(request, 'index.html', context=context)
 
 
+class JSONResponse(JsonResponse):
+    def __init__(self, message: str, status: int, **kwargs) -> None:
+        data = {"message": message, "code": status}
+        super().__init__(data=data, status=status, **kwargs)
+
+
 @csrf_exempt
-def api_sensor_data(request):
+def api_sensor_data(request: HttpRequest) -> JSONResponse:
     try:
         logger.info("Request body: %s", request.body)
         data = json.loads(request.body.decode())
     except JSONDecodeError as e:
-        return HttpResponseBadRequest("Decoding of JSON failed: %s", e)
+        return JSONResponse(message="Decoding of JSON failed: %s" % e, status=HttpResponseBadRequest.status_code)
     except Exception as e:
-        return HttpResponseBadRequest("Unhandled error when decoding JSON: %s", e)
+        return JSONResponse(message="Unhandled error when decoding JSON: %s" % e, status=HttpResponseBadRequest.status_code)
 
-    with open(MEASUREMENT_SCHEMA_FILE, "r") as fh:
-        try:
-            schema = json.load(fh)
-        except JSONDecodeError:
-            return HttpResponseServerError("Decoding schema file failed. Check server logs.")
-        try:
-            validate(data, schema, cls=Draft7Validator)
-        except ValidationError as e:
-            logger.error("Measurement POST request rejected: Validation error: %s", e.message)
-            return HttpResponseNotAllowed("Invalid format: %s", e.message)
+    try:
+        with open(MEASUREMENT_SCHEMA_FILE, "r") as fh:
+            try:
+                schema = json.load(fh)
+            except JSONDecodeError:
+                return JSONResponse(message="Decoding schema file failed. Check server logs.", status=HttpResponseServerError.status_code)
+            try:
+                validate(data, schema, cls=Draft7Validator)
+            except ValidationError as e:
+                logger.error("Measurement POST request rejected: Validation error: %s", e.message)
+                return JSONResponse(message="Invalid format: %s" % e.message, status=HttpResponseBadRequest.status_code)
+    except Exception as e:
+        logger.exception("Unhandled error while validating request body:")
+        return JSONResponse(message="Unexpected error while validating request body. Check server logs.", status=HttpResponseBadRequest.status_code)
 
     logger.info("Received data: %s", data)
 
-    return HttpResponse("SUCCESS")
+    return JSONResponse(message="SUCCESS", status=HttpResponse.status_code)
